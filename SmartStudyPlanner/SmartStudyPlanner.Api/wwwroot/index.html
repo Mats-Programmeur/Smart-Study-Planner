@@ -21,7 +21,7 @@
             <article class="panel">
                 <header class="panel-header">
                     <h2>Nieuwe taak</h2>
-                    <p>Voeg een taak toe met een titel en korte beschrijving.</p>
+                    <p>Voeg een taak toe met titel, beschrijving, datum en tijd.</p>
                 </header>
 
                 <form id="task-form" class="task-form" novalidate>
@@ -46,6 +46,35 @@
                             maxlength="500"
                             aria-describedby="description-help"></textarea>
                         <small id="description-help">Optioneel. Handig voor extra context.</small>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="date">Datum</label>
+                        <input
+                            id="date"
+                            name="date"
+                            type="date"
+                            required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="start-time">Starttijd</label>
+                            <input
+                                id="start-time"
+                                name="startTime"
+                                type="time"
+                                required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="end-time">Eindtijd</label>
+                            <input
+                                id="end-time"
+                                name="endTime"
+                                type="time"
+                                required>
+                        </div>
                     </div>
 
                     <button type="submit" class="primary-button">Taak opslaan</button>

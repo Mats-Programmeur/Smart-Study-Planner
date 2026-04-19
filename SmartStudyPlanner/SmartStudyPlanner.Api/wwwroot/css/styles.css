@@ -97,6 +97,11 @@ textarea {
     margin-bottom: 1.25rem;
 }
 
+.form-row {
+    display: grid;
+    gap: 1rem;
+}
+
 .form-field label {
     display: block;
     margin-bottom: 0.5rem;
@@ -111,6 +116,18 @@ textarea {
     border-radius: 16px;
     background: var(--surface);
     color: var(--text);
+}
+
+.form-field input[type="date"] {
+    min-width: 0;
+    padding-right: 3.25rem;
+}
+
+.form-field textarea {
+    display: block;
+    max-width: 100%;
+    min-height: 8rem;
+    resize: vertical;
 }
 
 .form-field small {
@@ -178,6 +195,12 @@ textarea {
     margin: 0;
     color: var(--muted);
     line-height: 1.5;
+}
+
+@media (min-width: 640px) {
+    .form-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (min-width: 860px) {

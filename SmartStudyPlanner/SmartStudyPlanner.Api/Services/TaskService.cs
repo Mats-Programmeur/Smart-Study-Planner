@@ -1,4 +1,4 @@
-﻿using SmartStudyPlanner.Api.Models;
+using SmartStudyPlanner.Api.Models;
 
 namespace SmartStudyPlanner.Api.Services
 {
@@ -8,13 +8,18 @@ namespace SmartStudyPlanner.Api.Services
 
         public List<TaskItem> GetAll()
         {
-            return tasks;
+            return tasks
+                .OrderBy(task => task.Datum)
+                .ThenBy(task => task.StartTijd)
+                .ThenBy(task => task.Titel)
+                .ToList();
         }
 
-        public void Add(TaskItem task)
+        public TaskItem Add(TaskItem task)
         {
             task.Id = tasks.Count + 1;
             tasks.Add(task);
+            return task;
         }
     }
 }
