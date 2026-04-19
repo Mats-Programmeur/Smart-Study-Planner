@@ -1,6 +1,15 @@
 @SmartStudyPlanner.Api_HostAddress = http://localhost:5189
 
-GET {{SmartStudyPlanner.Api_HostAddress}}/weatherforecast/
+GET {{SmartStudyPlanner.Api_HostAddress}}/tasks/
 Accept: application/json
+
+###
+
+POST {{SmartStudyPlanner.Api_HostAddress}}/tasks/
+Content-Type: application/json
+{
+  "titel": "Test taak",
+  "beschrijving": "Dit is een test"
+}
 
 ###
