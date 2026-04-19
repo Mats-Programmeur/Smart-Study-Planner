@@ -1,19 +1,28 @@
+using Microsoft.EntityFrameworkCore;
+using SmartStudyPlanner.Api.Data;
 using SmartStudyPlanner.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddSingleton<TaskService>();
+var connectionString = builder.Configuration.GetConnectionString("SmartStudyPlannerDb")
+    ?? throw new InvalidOperationException("Connection string 'SmartStudyPlannerDb' is not configured.");
 
+builder.Services.AddDbContext<StudyPlannerDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<TaskService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<StudyPlannerDbContext>();
+    dbContext.Database.EnsureCreated();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
