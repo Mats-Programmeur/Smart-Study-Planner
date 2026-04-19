@@ -3,7 +3,7 @@
     public class TaskItem
     {
         public int Id { get; set; }
-        public string Titel { get; set; }
-        public string Beschrijving { get; set; }
+        public required string Titel { get; set; }
+        public string? Beschrijving { get; set; }
     }
 }

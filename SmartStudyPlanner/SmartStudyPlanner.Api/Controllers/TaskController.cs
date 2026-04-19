@@ -23,7 +23,7 @@ namespace SmartStudyPlanner.Api.Controllers
                 return BadRequest("Titel is verplicht");
             }
 
-            // 🔐 XSS mitigatie
+            // XSS mitigatie
             task.Titel = System.Net.WebUtility.HtmlEncode(task.Titel);
             task.Beschrijving = System.Net.WebUtility.HtmlEncode(task.Beschrijving);
 
