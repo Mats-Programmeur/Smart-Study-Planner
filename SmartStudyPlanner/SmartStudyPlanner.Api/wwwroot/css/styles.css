@@ -1,6 +1,188 @@
-﻿namespace SmartStudyPlanner.Api.wwwroot.CSS
-{
-    public class styles
-    {
+:root {
+    --bg: #f5f1e8;
+    --surface: #fffdf8;
+    --surface-strong: #efe4d1;
+    --line: #d3c3ab;
+    --text: #1f1a14;
+    --muted: #615646;
+    --accent: #1f6f5f;
+    --accent-dark: #14483e;
+    --danger: #9f2d2d;
+    --shadow: 0 20px 40px rgba(64, 42, 12, 0.12);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text);
+    background:
+        radial-gradient(circle at top left, rgba(31, 111, 95, 0.16), transparent 28%),
+        linear-gradient(180deg, #f3eee2 0%, var(--bg) 100%);
+}
+
+button,
+input,
+textarea {
+    font: inherit;
+}
+
+.page-shell {
+    width: min(1100px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 3rem 0 4rem;
+}
+
+.hero {
+    margin-bottom: 2rem;
+}
+
+.eyebrow {
+    margin: 0 0 0.75rem;
+    color: var(--accent-dark);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.hero h1 {
+    margin: 0;
+    max-width: 12ch;
+    font-size: clamp(2.3rem, 5vw, 4.5rem);
+    line-height: 0.95;
+}
+
+.hero-copy {
+    max-width: 60ch;
+    margin: 1rem 0 0;
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.content-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.panel {
+    padding: 1.5rem;
+    border: 1px solid rgba(97, 86, 70, 0.18);
+    border-radius: 24px;
+    background: rgba(255, 253, 248, 0.92);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(8px);
+}
+
+.panel-header h2 {
+    margin: 0;
+    font-size: 1.45rem;
+}
+
+.panel-header p {
+    margin: 0.5rem 0 0;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.task-form {
+    margin-top: 1.5rem;
+}
+
+.form-field {
+    margin-bottom: 1.25rem;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.form-field input,
+.form-field textarea {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+    color: var(--text);
+}
+
+.form-field small {
+    display: block;
+    margin-top: 0.4rem;
+    color: var(--muted);
+}
+
+.form-field input:focus,
+.form-field textarea:focus,
+.primary-button:focus {
+    outline: 3px solid rgba(31, 111, 95, 0.25);
+    outline-offset: 2px;
+}
+
+.primary-button {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.9rem 1.4rem;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.primary-button:hover {
+    transform: translateY(-1px);
+}
+
+.form-feedback {
+    min-height: 1.5rem;
+    margin: 1rem 0 0;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.form-feedback.is-error {
+    color: var(--danger);
+}
+
+.task-list {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.empty-state,
+.task-card {
+    padding: 1rem;
+    border-radius: 18px;
+    background: var(--surface);
+    border: 1px solid rgba(211, 195, 171, 0.8);
+}
+
+.empty-state {
+    color: var(--muted);
+}
+
+.task-card h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.05rem;
+}
+
+.task-card p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+@media (min-width: 860px) {
+    .content-grid {
+        grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+        align-items: start;
     }
 }

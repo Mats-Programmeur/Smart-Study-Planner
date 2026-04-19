@@ -1,6 +1,69 @@
-﻿namespace SmartStudyPlanner.Api.wwwroot
-{
-    public class index
-    {
-    }
-}
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Smart Study Planner</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <main class="page-shell">
+        <section class="hero">
+            <p class="eyebrow">Smart Study Planner</p>
+            <h1>Plan je studietaken zonder het overzicht kwijt te raken.</h1>
+            <p class="hero-copy">
+                Deze eerste MVP-pagina laat zien hoe taken van invoer naar de API gaan en weer
+                zichtbaar worden in het overzicht.
+            </p>
+        </section>
+
+        <section class="content-grid" aria-label="Taken beheren">
+            <article class="panel">
+                <header class="panel-header">
+                    <h2>Nieuwe taak</h2>
+                    <p>Voeg een taak toe met een titel en korte beschrijving.</p>
+                </header>
+
+                <form id="task-form" class="task-form" novalidate>
+                    <div class="form-field">
+                        <label for="title">Titel</label>
+                        <input
+                            id="title"
+                            name="title"
+                            type="text"
+                            maxlength="120"
+                            required
+                            aria-describedby="title-help">
+                        <small id="title-help">Verplicht veld. Maximaal 120 tekens.</small>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="description">Beschrijving</label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            rows="5"
+                            maxlength="500"
+                            aria-describedby="description-help"></textarea>
+                        <small id="description-help">Optioneel. Handig voor extra context.</small>
+                    </div>
+
+                    <button type="submit" class="primary-button">Taak opslaan</button>
+                    <p id="form-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+                </form>
+            </article>
+
+            <article class="panel">
+                <header class="panel-header">
+                    <h2>Jouw taken</h2>
+                    <p>Hier zie je de taken die nu in de applicatie zijn opgeslagen.</p>
+                </header>
+
+                <div id="task-list" class="task-list" aria-live="polite"></div>
+            </article>
+        </section>
+    </main>
+
+    <script src="/js/app.js" defer></script>
+</body>
+</html>
