@@ -10,85 +10,222 @@
     <main class="page-shell">
         <section class="hero">
             <p class="eyebrow">Smart Study Planner</p>
-            <h1>Plan je studietaken zonder het overzicht kwijt te raken.</h1>
+            <h1>Plan veilig, houd overzicht en laat rollen precies doen wat ze mogen.</h1>
             <p class="hero-copy">
-                Deze eerste MVP-pagina laat zien hoe taken van invoer naar de API gaan en weer
-                zichtbaar worden in het overzicht.
+                Deze showcaseversie ondersteunt studenten en beheerders met JWT-authenticatie,
+                rolgebaseerde autorisatie, eigenaarschap op data en eenvoudige studieadviezen.
             </p>
         </section>
 
-        <section class="content-grid" aria-label="Taken beheren">
+        <section class="panel credentials-panel" aria-labelledby="demo-accounts-title">
+            <div>
+                <h2 id="demo-accounts-title">Demo-accounts</h2>
+                <p>Gebruik deze accounts om authenticatie en autorisatie direct te demonstreren.</p>
+            </div>
+            <div class="credential-grid">
+                <article class="credential-card">
+                    <h3>Student</h3>
+                    <p><strong>E-mail:</strong> <span>student@smartstudyplanner.local</span></p>
+                    <p><strong>Wachtwoord:</strong> <span>Student123!</span></p>
+                </article>
+                <article class="credential-card">
+                    <h3>Beheerder</h3>
+                    <p><strong>E-mail:</strong> <span>admin@smartstudyplanner.local</span></p>
+                    <p><strong>Wachtwoord:</strong> <span>Admin123!</span></p>
+                </article>
+            </div>
+        </section>
+
+        <section class="dashboard-grid">
             <article class="panel">
                 <header class="panel-header">
-                    <h2>Nieuwe taak</h2>
-                    <p>Voeg een taak toe met titel, beschrijving, datum en tijd.</p>
+                    <h2>Account</h2>
+                    <p>Log in of maak een studentaccount aan om jouw planning te beheren.</p>
                 </header>
 
-                <form id="task-form" class="task-form" novalidate>
+                <form id="auth-form" class="stacked-form" novalidate>
                     <div class="form-field">
-                        <label for="title">Titel</label>
-                        <input
-                            id="title"
-                            name="title"
-                            type="text"
-                            maxlength="120"
-                            required
-                            aria-describedby="title-help">
-                        <small id="title-help">Verplicht veld. Maximaal 120 tekens.</small>
+                        <label for="auth-name">Naam</label>
+                        <input id="auth-name" name="naam" type="text" maxlength="80" autocomplete="name">
+                        <small>Alleen nodig bij een nieuw account.</small>
                     </div>
 
                     <div class="form-field">
-                        <label for="description">Beschrijving</label>
-                        <textarea
-                            id="description"
-                            name="description"
-                            rows="5"
-                            maxlength="500"
-                            aria-describedby="description-help"></textarea>
-                        <small id="description-help">Optioneel. Handig voor extra context.</small>
+                        <label for="auth-email">E-mailadres</label>
+                        <input id="auth-email" name="email" type="email" maxlength="200" required autocomplete="username">
                     </div>
 
                     <div class="form-field">
-                        <label for="date">Datum</label>
-                        <input
-                            id="date"
-                            name="date"
-                            type="date"
-                            required>
+                        <label for="auth-password">Wachtwoord</label>
+                        <input id="auth-password" name="wachtwoord" type="password" minlength="8" required autocomplete="current-password">
+                        <small>Minimaal 8 tekens.</small>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-field">
-                            <label for="start-time">Starttijd</label>
-                            <input
-                                id="start-time"
-                                name="startTime"
-                                type="time"
-                                required>
-                        </div>
-
-                        <div class="form-field">
-                            <label for="end-time">Eindtijd</label>
-                            <input
-                                id="end-time"
-                                name="endTime"
-                                type="time"
-                                required>
-                        </div>
+                    <div class="button-row">
+                        <button type="submit" class="primary-button" data-action="login">Inloggen</button>
+                        <button type="submit" class="secondary-button" data-action="register">Account maken</button>
                     </div>
-
-                    <button type="submit" class="primary-button">Taak opslaan</button>
-                    <p id="form-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+                    <p id="auth-feedback" class="form-feedback" role="status" aria-live="polite"></p>
                 </form>
+
+                <section id="session-card" class="session-card is-hidden" aria-live="polite">
+                    <div>
+                        <p class="session-label">Ingelogd als</p>
+                        <h3 id="session-name">-</h3>
+                        <p id="session-meta" class="muted-text"></p>
+                    </div>
+                    <button id="logout-button" type="button" class="secondary-button">Uitloggen</button>
+                </section>
             </article>
 
-            <article class="panel">
-                <header class="panel-header">
-                    <h2>Jouw taken</h2>
-                    <p>Hier zie je de taken die nu in de applicatie zijn opgeslagen.</p>
-                </header>
+            <div id="student-dashboard" class="dashboard-stack is-hidden">
+                <article class="panel">
+                    <header class="panel-header">
+                        <h2>Taken beheren</h2>
+                        <p>Voeg taken toe, werk ze bij en verwijder ze alleen binnen je eigen account.</p>
+                    </header>
 
-                <div id="task-list" class="task-list" aria-live="polite"></div>
+                    <form id="task-form" class="stacked-form" novalidate>
+                        <input id="task-id" name="id" type="hidden">
+
+                        <div class="form-field">
+                            <label for="task-title">Titel</label>
+                            <input id="task-title" name="titel" type="text" maxlength="120" required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="task-description">Beschrijving</label>
+                            <textarea id="task-description" name="beschrijving" rows="4" maxlength="500"></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="task-date">Datum</label>
+                                <input id="task-date" name="datum" type="date" required>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="task-priority">Prioriteit</label>
+                                <select id="task-priority" name="prioriteit">
+                                    <option value="Laag">Laag</option>
+                                    <option value="Normaal" selected>Normaal</option>
+                                    <option value="Hoog">Hoog</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="task-start-time">Starttijd</label>
+                                <input id="task-start-time" name="startTijd" type="time" required>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="task-end-time">Eindtijd</label>
+                                <input id="task-end-time" name="eindTijd" type="time" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="task-estimate">Geschatte studietijd (minuten)</label>
+                                <input id="task-estimate" name="geschatteStudietijdMinuten" type="number" min="15" max="480" step="15" value="60" required>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="task-status">Status</label>
+                                <select id="task-status" name="status">
+                                    <option value="Gepland" selected>Gepland</option>
+                                    <option value="Bezig">Bezig</option>
+                                    <option value="Afgerond">Afgerond</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="button-row">
+                            <button type="submit" class="primary-button">Taak opslaan</button>
+                            <button id="task-cancel" type="button" class="secondary-button">Annuleren</button>
+                        </div>
+                        <p id="task-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+                    </form>
+
+                    <div id="task-list" class="item-list" aria-live="polite"></div>
+                </article>
+
+                <article class="panel">
+                    <header class="panel-header">
+                        <h2>Deadlines beheren</h2>
+                        <p>Bewaar deadlines apart zodat de planner realistische adviezen kan tonen.</p>
+                    </header>
+
+                    <form id="deadline-form" class="stacked-form" novalidate>
+                        <input id="deadline-id" name="id" type="hidden">
+
+                        <div class="form-field">
+                            <label for="deadline-title">Titel</label>
+                            <input id="deadline-title" name="titel" type="text" maxlength="120" required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="deadline-description">Beschrijving</label>
+                            <textarea id="deadline-description" name="beschrijving" rows="4" maxlength="500"></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="deadline-date">Datum</label>
+                                <input id="deadline-date" name="datum" type="date" required>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="deadline-time">Eindtijd</label>
+                                <input id="deadline-time" name="eindTijd" type="time" required>
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="deadline-priority">Prioriteit</label>
+                            <select id="deadline-priority" name="prioriteit">
+                                <option value="Laag">Laag</option>
+                                <option value="Normaal" selected>Normaal</option>
+                                <option value="Hoog">Hoog</option>
+                            </select>
+                        </div>
+
+                        <div class="button-row">
+                            <button type="submit" class="primary-button">Deadline opslaan</button>
+                            <button id="deadline-cancel" type="button" class="secondary-button">Annuleren</button>
+                        </div>
+                        <p id="deadline-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+                    </form>
+
+                    <div id="deadline-list" class="item-list" aria-live="polite"></div>
+                </article>
+
+                <article class="panel">
+                    <header class="panel-header">
+                        <h2>Planningsoverzicht</h2>
+                        <p>Je taken en deadlines worden per dag gegroepeerd voor een snel overzicht.</p>
+                    </header>
+                    <div id="planning-list" class="planning-list" aria-live="polite"></div>
+                </article>
+
+                <article class="panel">
+                    <header class="panel-header">
+                        <h2>Advies</h2>
+                        <p>De applicatie geeft advies bij overbelasting of deadlines die te dicht op taken liggen.</p>
+                    </header>
+                    <div id="advice-list" class="item-list" aria-live="polite"></div>
+                </article>
+            </div>
+
+            <article id="admin-dashboard" class="panel is-hidden">
+                <header class="panel-header">
+                    <h2>Gebruikers beheren</h2>
+                    <p>Alleen beheerders mogen rollen en activatiestatus van accounts wijzigen.</p>
+                </header>
+                <p id="admin-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+                <div id="user-list" class="user-list" aria-live="polite"></div>
             </article>
         </section>
     </main>
