@@ -283,6 +283,7 @@ button {
     justify-content: space-between;
     gap: 1rem;
     align-items: center;
+    flex-wrap: wrap;
     margin-top: 1rem;
     padding: 1.15rem;
     background: linear-gradient(135deg, rgba(22, 93, 82, 0.08) 0%, #fffdfa 100%);
@@ -290,17 +291,23 @@ button {
 
 .session-content {
     min-width: 0;
+    flex: 1 1 220px;
 }
 
 .session-actions {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    flex: 0 0 auto;
 }
 
 .session-actions .secondary-button {
     width: 100%;
     min-width: 140px;
+}
+
+#session-meta {
+    overflow-wrap: anywhere;
 }
 
 .session-label {
