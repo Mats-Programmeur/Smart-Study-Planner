@@ -282,6 +282,12 @@ ServiceFabricBackup/
 *.ldf
 *.ndf
 
+# Local development databases and temporary run logs
+*.db
+*.db-journal
+run.stdout.log
+run.stderr.log
+
 # Business Intelligence projects
 *.rdl.data
 *.bim.layout
