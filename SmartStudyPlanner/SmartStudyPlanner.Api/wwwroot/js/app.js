@@ -555,6 +555,7 @@ function updateDashboardVisibility() {
     const isStudent = state.user?.rol === "Student";
     const isAdmin = state.user?.rol === "Beheerder";
 
+    authForm.classList.toggle("is-hidden", isLoggedIn);
     sessionCard.classList.toggle("is-hidden", !isLoggedIn);
     studentDashboard.classList.toggle("is-hidden", !isStudent);
     adminDashboard.classList.toggle("is-hidden", !isAdmin);
@@ -627,8 +628,12 @@ async function apiFetch(url, options = {}, requiresAuth = true) {
         headers
     });
 
+    const errorText = response.ok || response.status === 204
+        ? ""
+        : (await response.text()).trim();
+
     if (response.status === 401) {
-        throw new Error("Je bent niet gemachtigd om deze actie uit te voeren.");
+        throw new Error(errorText || "E-mailadres of wachtwoord klopt niet.");
     }
 
     if (response.status === 403) {
@@ -636,7 +641,6 @@ async function apiFetch(url, options = {}, requiresAuth = true) {
     }
 
     if (!response.ok) {
-        const errorText = await response.text();
         throw new Error(errorText || "Er ging iets mis tijdens het laden.");
     }
 

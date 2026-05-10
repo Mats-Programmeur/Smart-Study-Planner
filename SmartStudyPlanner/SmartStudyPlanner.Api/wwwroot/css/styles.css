@@ -284,6 +284,23 @@ button {
     gap: 1rem;
     align-items: center;
     margin-top: 1rem;
+    padding: 1.15rem;
+    background: linear-gradient(135deg, rgba(22, 93, 82, 0.08) 0%, #fffdfa 100%);
+}
+
+.session-content {
+    min-width: 0;
+}
+
+.session-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.session-actions .secondary-button {
+    width: 100%;
+    min-width: 140px;
 }
 
 .session-label {
@@ -300,6 +317,17 @@ button {
 
 .is-hidden {
     display: none;
+}
+
+@media (max-width: 679px) {
+    .session-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .session-actions {
+        justify-content: stretch;
+    }
 }
 
 @media (min-width: 680px) {
