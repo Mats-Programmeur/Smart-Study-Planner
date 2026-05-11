@@ -1,16 +1,13 @@
 namespace SmartStudyPlanner.Api.Models
 {
-    public class TaskItem
+    public class DeadlineItem
     {
         public int Id { get; set; }
         public required string Titel { get; set; }
         public string? Beschrijving { get; set; }
         public DateOnly Datum { get; set; }
-        public TimeOnly StartTijd { get; set; }
         public TimeOnly EindTijd { get; set; }
         public string Prioriteit { get; set; } = TaskPriority.Normaal;
-        public int GeschatteStudietijdMinuten { get; set; } = 60;
-        public string Status { get; set; } = Models.TaskStatus.Gepland;
         public int UserId { get; set; }
     }
 }

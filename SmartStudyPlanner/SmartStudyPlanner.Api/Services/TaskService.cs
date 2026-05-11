@@ -13,21 +13,41 @@ namespace SmartStudyPlanner.Api.Services
             _dbContext = dbContext;
         }
 
-        public List<TaskItem> GetAll()
+        public async Task<List<TaskItem>> GetAllForUserAsync(int userId)
         {
-            return _dbContext.Tasks
+            return await _dbContext.Tasks
                 .AsNoTracking()
+                .Where(task => task.UserId == userId)
                 .OrderBy(task => task.Datum)
                 .ThenBy(task => task.StartTijd)
                 .ThenBy(task => task.Titel)
-                .ToList();
+                .ToListAsync();
         }
 
-        public TaskItem Add(TaskItem task)
+        public async Task<TaskItem> AddAsync(TaskItem task)
         {
             _dbContext.Tasks.Add(task);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             return task;
+        }
+
+        public async Task<TaskItem?> GetByIdForUserAsync(int taskId, int userId)
+        {
+            return await _dbContext.Tasks
+                .FirstOrDefaultAsync(task => task.Id == taskId && task.UserId == userId);
+        }
+
+        public async Task<TaskItem> UpdateAsync(TaskItem task)
+        {
+            _dbContext.Tasks.Update(task);
+            await _dbContext.SaveChangesAsync();
+            return task;
+        }
+
+        public async Task DeleteAsync(TaskItem task)
+        {
+            _dbContext.Tasks.Remove(task);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
