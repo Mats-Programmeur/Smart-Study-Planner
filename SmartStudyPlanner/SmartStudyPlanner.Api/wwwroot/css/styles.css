@@ -126,9 +126,16 @@ button {
     margin-top: 1.25rem;
 }
 
-.auth-choice {
+.auth-choice,
+.panel-choice {
     display: grid;
     gap: 0.9rem;
+    margin-top: 1.25rem;
+}
+
+.panel-mode-actions {
+    display: flex;
+    justify-content: flex-end;
     margin-top: 1.25rem;
 }
 
@@ -351,6 +358,7 @@ button {
 @media (min-width: 680px) {
     .credential-grid,
     .auth-choice,
+    .panel-choice,
     .form-row,
     .button-row,
     .action-row,

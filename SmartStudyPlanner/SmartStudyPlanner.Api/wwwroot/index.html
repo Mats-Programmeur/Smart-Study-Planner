@@ -94,7 +94,16 @@
                         <p>Voeg taken toe, werk ze bij en verwijder ze alleen binnen je eigen account.</p>
                     </header>
 
-                    <form id="task-form" class="stacked-form" novalidate>
+                    <div id="task-choice" class="panel-choice" aria-label="Kies wat je met taken wilt doen">
+                        <button type="button" class="primary-button" data-task-panel-mode="add">Taak toevoegen</button>
+                        <button type="button" class="secondary-button" data-task-panel-mode="list">Alle taken bekijken</button>
+                    </div>
+
+                    <div id="task-mode-actions" class="panel-mode-actions is-hidden">
+                        <button id="task-switch-button" type="button" class="secondary-button">Alle taken bekijken</button>
+                    </div>
+
+                    <form id="task-form" class="stacked-form is-hidden" novalidate>
                         <input id="task-id" name="id" type="hidden">
 
                         <div class="form-field">
@@ -158,7 +167,7 @@
                         <p id="task-feedback" class="form-feedback" role="status" aria-live="polite"></p>
                     </form>
 
-                    <div id="task-list" class="item-list" aria-live="polite"></div>
+                    <div id="task-list" class="item-list is-hidden" aria-live="polite"></div>
                 </article>
 
                 <article class="panel">
@@ -167,7 +176,16 @@
                         <p>Bewaar deadlines apart zodat de planner realistische adviezen kan tonen.</p>
                     </header>
 
-                    <form id="deadline-form" class="stacked-form" novalidate>
+                    <div id="deadline-choice" class="panel-choice" aria-label="Kies wat je met deadlines wilt doen">
+                        <button type="button" class="primary-button" data-deadline-panel-mode="add">Deadline toevoegen</button>
+                        <button type="button" class="secondary-button" data-deadline-panel-mode="list">Alle deadlines bekijken</button>
+                    </div>
+
+                    <div id="deadline-mode-actions" class="panel-mode-actions is-hidden">
+                        <button id="deadline-switch-button" type="button" class="secondary-button">Alle deadlines bekijken</button>
+                    </div>
+
+                    <form id="deadline-form" class="stacked-form is-hidden" novalidate>
                         <input id="deadline-id" name="id" type="hidden">
 
                         <div class="form-field">
@@ -208,7 +226,7 @@
                         <p id="deadline-feedback" class="form-feedback" role="status" aria-live="polite"></p>
                     </form>
 
-                    <div id="deadline-list" class="item-list" aria-live="polite"></div>
+                    <div id="deadline-list" class="item-list is-hidden" aria-live="polite"></div>
                 </article>
 
                 <article class="panel">

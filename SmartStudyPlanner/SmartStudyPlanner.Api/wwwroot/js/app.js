@@ -2,6 +2,8 @@ const state = {
     token: localStorage.getItem("ssp_token"),
     user: null,
     authMode: null,
+    taskPanelMode: null,
+    deadlinePanelMode: null,
     tasks: [],
     deadlines: [],
     users: []
@@ -14,7 +16,13 @@ const authNameField = document.getElementById("auth-name-field");
 const authPasswordInput = document.getElementById("auth-password");
 const authSubmitButton = document.getElementById("auth-submit-button");
 const authSwitchButton = document.getElementById("auth-switch-button");
+const taskChoice = document.getElementById("task-choice");
+const taskModeActions = document.getElementById("task-mode-actions");
+const taskSwitchButton = document.getElementById("task-switch-button");
 const taskForm = document.getElementById("task-form");
+const deadlineChoice = document.getElementById("deadline-choice");
+const deadlineModeActions = document.getElementById("deadline-mode-actions");
+const deadlineSwitchButton = document.getElementById("deadline-switch-button");
 const deadlineForm = document.getElementById("deadline-form");
 const logoutButton = document.getElementById("logout-button");
 const taskCancelButton = document.getElementById("task-cancel");
@@ -48,11 +56,15 @@ function bindEvents() {
     authChoice.addEventListener("click", handleAuthChoiceClick);
     authForm.addEventListener("submit", handleAuthSubmit);
     authSwitchButton.addEventListener("click", handleAuthSwitchClick);
+    taskChoice.addEventListener("click", handleTaskChoiceClick);
+    taskSwitchButton.addEventListener("click", handleTaskSwitchClick);
     taskForm.addEventListener("submit", handleTaskSubmit);
+    deadlineChoice.addEventListener("click", handleDeadlineChoiceClick);
+    deadlineSwitchButton.addEventListener("click", handleDeadlineSwitchClick);
     deadlineForm.addEventListener("submit", handleDeadlineSubmit);
     logoutButton.addEventListener("click", logout);
-    taskCancelButton.addEventListener("click", resetTaskForm);
-    deadlineCancelButton.addEventListener("click", resetDeadlineForm);
+    taskCancelButton.addEventListener("click", cancelTaskForm);
+    deadlineCancelButton.addEventListener("click", cancelDeadlineForm);
     taskList.addEventListener("click", handleTaskListClick);
     deadlineList.addEventListener("click", handleDeadlineListClick);
     userList.addEventListener("click", handleUserListClick);
@@ -70,6 +82,34 @@ function handleAuthChoiceClick(event) {
 
 function handleAuthSwitchClick() {
     setAuthMode(state.authMode === "register" ? "login" : "register");
+}
+
+function handleTaskChoiceClick(event) {
+    const button = event.target.closest("button[data-task-panel-mode]");
+
+    if (!button) {
+        return;
+    }
+
+    setTaskPanelMode(button.dataset.taskPanelMode);
+}
+
+function handleTaskSwitchClick() {
+    setTaskPanelMode(state.taskPanelMode === "add" ? "list" : "add");
+}
+
+function handleDeadlineChoiceClick(event) {
+    const button = event.target.closest("button[data-deadline-panel-mode]");
+
+    if (!button) {
+        return;
+    }
+
+    setDeadlinePanelMode(button.dataset.deadlinePanelMode);
+}
+
+function handleDeadlineSwitchClick() {
+    setDeadlinePanelMode(state.deadlinePanelMode === "add" ? "list" : "add");
 }
 
 async function restoreSession() {
@@ -140,6 +180,8 @@ function logout() {
     state.token = null;
     state.user = null;
     state.authMode = null;
+    state.taskPanelMode = null;
+    state.deadlinePanelMode = null;
     state.tasks = [];
     state.deadlines = [];
     state.users = [];
@@ -307,6 +349,7 @@ async function handleTaskListClick(event) {
     }
 
     if (button.dataset.taskAction === "edit") {
+        setTaskPanelMode("add", { clearFeedback: false, focus: false });
         document.getElementById("task-id").value = task.id;
         document.getElementById("task-title").value = task.titel;
         document.getElementById("task-description").value = task.beschrijving ?? "";
@@ -348,6 +391,7 @@ async function handleDeadlineListClick(event) {
     }
 
     if (button.dataset.deadlineAction === "edit") {
+        setDeadlinePanelMode("add", { clearFeedback: false, focus: false });
         document.getElementById("deadline-id").value = deadline.id;
         document.getElementById("deadline-title").value = deadline.titel;
         document.getElementById("deadline-description").value = deadline.beschrijving ?? "";
@@ -584,6 +628,8 @@ function updateDashboardVisibility() {
     sessionCard.classList.toggle("is-hidden", !isLoggedIn);
     studentDashboard.classList.toggle("is-hidden", !isStudent);
     adminDashboard.classList.toggle("is-hidden", !isAdmin);
+    updateTaskPanelVisibility(isStudent);
+    updateDeadlinePanelVisibility(isStudent);
 
     if (isLoggedIn) {
         sessionName.textContent = state.user.naam;
@@ -606,6 +652,70 @@ function setAuthMode(mode) {
     setFeedback(authFeedback, "");
     updateDashboardVisibility();
     document.getElementById(isRegister ? "auth-name" : "auth-email").focus();
+}
+
+function setTaskPanelMode(mode, options = {}) {
+    state.taskPanelMode = mode;
+
+    if (options.clearFeedback !== false) {
+        setFeedback(taskFeedback, "");
+    }
+
+    updateDashboardVisibility();
+
+    if (options.focus !== false && mode === "add") {
+        document.getElementById("task-title").focus();
+    }
+}
+
+function setDeadlinePanelMode(mode, options = {}) {
+    state.deadlinePanelMode = mode;
+
+    if (options.clearFeedback !== false) {
+        setFeedback(deadlineFeedback, "");
+    }
+
+    updateDashboardVisibility();
+
+    if (options.focus !== false && mode === "add") {
+        document.getElementById("deadline-title").focus();
+    }
+}
+
+function updateTaskPanelVisibility(isStudent) {
+    const hasMode = Boolean(state.taskPanelMode);
+    const showForm = isStudent && state.taskPanelMode === "add";
+    const showList = isStudent && state.taskPanelMode === "list";
+
+    taskChoice.classList.toggle("is-hidden", !isStudent || hasMode);
+    taskModeActions.classList.toggle("is-hidden", !isStudent || !hasMode);
+    taskForm.classList.toggle("is-hidden", !showForm);
+    taskList.classList.toggle("is-hidden", !showList);
+    taskSwitchButton.textContent = state.taskPanelMode === "add" ? "Alle taken bekijken" : "Taak toevoegen";
+}
+
+function updateDeadlinePanelVisibility(isStudent) {
+    const hasMode = Boolean(state.deadlinePanelMode);
+    const showForm = isStudent && state.deadlinePanelMode === "add";
+    const showList = isStudent && state.deadlinePanelMode === "list";
+
+    deadlineChoice.classList.toggle("is-hidden", !isStudent || hasMode);
+    deadlineModeActions.classList.toggle("is-hidden", !isStudent || !hasMode);
+    deadlineForm.classList.toggle("is-hidden", !showForm);
+    deadlineList.classList.toggle("is-hidden", !showList);
+    deadlineSwitchButton.textContent = state.deadlinePanelMode === "add" ? "Alle deadlines bekijken" : "Deadline toevoegen";
+}
+
+function cancelTaskForm() {
+    resetTaskForm();
+    state.taskPanelMode = null;
+    updateDashboardVisibility();
+}
+
+function cancelDeadlineForm() {
+    resetDeadlineForm();
+    state.deadlinePanelMode = null;
+    updateDashboardVisibility();
 }
 
 function resetTaskForm() {
