@@ -55,13 +55,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 function bindEvents() {
     authChoice.addEventListener("click", handleAuthChoiceClick);
     authForm.addEventListener("submit", handleAuthSubmit);
+    authForm.addEventListener("input", handleFormInput);
     authSwitchButton.addEventListener("click", handleAuthSwitchClick);
     taskChoice.addEventListener("click", handleTaskChoiceClick);
     taskSwitchButton.addEventListener("click", handleTaskSwitchClick);
     taskForm.addEventListener("submit", handleTaskSubmit);
+    taskForm.addEventListener("input", handleFormInput);
+    taskForm.addEventListener("change", handleFormInput);
     deadlineChoice.addEventListener("click", handleDeadlineChoiceClick);
     deadlineSwitchButton.addEventListener("click", handleDeadlineSwitchClick);
     deadlineForm.addEventListener("submit", handleDeadlineSubmit);
+    deadlineForm.addEventListener("input", handleFormInput);
+    deadlineForm.addEventListener("change", handleFormInput);
     logoutButton.addEventListener("click", logout);
     taskCancelButton.addEventListener("click", cancelTaskForm);
     deadlineCancelButton.addEventListener("click", cancelDeadlineForm);
@@ -112,6 +117,14 @@ function handleDeadlineSwitchClick() {
     setDeadlinePanelMode(state.deadlinePanelMode === "add" ? "list" : "add");
 }
 
+function handleFormInput(event) {
+    const field = event.target.closest(".form-field");
+
+    if (field) {
+        field.classList.remove("is-invalid");
+    }
+}
+
 async function restoreSession() {
     try {
         state.user = await apiFetch("/auth/me");
@@ -126,6 +139,7 @@ async function restoreSession() {
 
 async function handleAuthSubmit(event) {
     event.preventDefault();
+    clearInvalidFields(authForm);
 
     const action = state.authMode ?? "login";
     const formData = new FormData(authForm);
@@ -136,11 +150,16 @@ async function handleAuthSubmit(event) {
     };
 
     if (!payload.email || !payload.wachtwoord) {
+        markInvalidFields([
+            ["auth-email", !payload.email],
+            ["auth-password", !payload.wachtwoord]
+        ]);
         setFeedback(authFeedback, "Vul e-mailadres en wachtwoord in.", true);
         return;
     }
 
     if (action === "register" && !payload.naam) {
+        markInvalidFields([["auth-name", true]]);
         setFeedback(authFeedback, "Vul ook een naam in voor een nieuw account.", true);
         return;
     }
@@ -250,6 +269,7 @@ async function loadUsers() {
 
 async function handleTaskSubmit(event) {
     event.preventDefault();
+    clearInvalidFields(taskForm);
 
     const formData = new FormData(taskForm);
     const taskId = document.getElementById("task-id").value;
@@ -265,11 +285,22 @@ async function handleTaskSubmit(event) {
     };
 
     if (!payload.titel || !payload.datum || !payload.startTijd || !payload.eindTijd) {
+        markInvalidFields([
+            ["task-title", !payload.titel],
+            ["task-date", !payload.datum],
+            ["task-start-time", !payload.startTijd],
+            ["task-end-time", !payload.eindTijd],
+            ["task-estimate", !payload.geschatteStudietijdMinuten]
+        ]);
         setFeedback(taskFeedback, "Vul alle verplichte taakvelden in.", true);
         return;
     }
 
     if (payload.eindTijd <= payload.startTijd) {
+        markInvalidFields([
+            ["task-start-time", true],
+            ["task-end-time", true]
+        ]);
         setFeedback(taskFeedback, "Eindtijd moet later zijn dan starttijd.", true);
         return;
     }
@@ -297,6 +328,7 @@ async function handleTaskSubmit(event) {
 
 async function handleDeadlineSubmit(event) {
     event.preventDefault();
+    clearInvalidFields(deadlineForm);
 
     const formData = new FormData(deadlineForm);
     const deadlineId = document.getElementById("deadline-id").value;
@@ -309,6 +341,11 @@ async function handleDeadlineSubmit(event) {
     };
 
     if (!payload.titel || !payload.datum || !payload.eindTijd) {
+        markInvalidFields([
+            ["deadline-title", !payload.titel],
+            ["deadline-date", !payload.datum],
+            ["deadline-time", !payload.eindTijd]
+        ]);
         setFeedback(deadlineFeedback, "Vul alle verplichte deadlinevelden in.", true);
         return;
     }
@@ -642,6 +679,7 @@ function updateDashboardVisibility() {
 
 function setAuthMode(mode) {
     state.authMode = mode;
+    clearInvalidFields(authForm);
 
     const isRegister = mode === "register";
     authFormTitle.textContent = isRegister ? "Account aanmaken" : "Inloggen";
@@ -720,6 +758,7 @@ function cancelDeadlineForm() {
 
 function resetTaskForm() {
     taskForm.reset();
+    clearInvalidFields(taskForm);
     document.getElementById("task-id").value = "";
     document.getElementById("task-estimate").value = 60;
     document.getElementById("task-priority").value = "Normaal";
@@ -730,6 +769,7 @@ function resetTaskForm() {
 
 function resetDeadlineForm() {
     deadlineForm.reset();
+    clearInvalidFields(deadlineForm);
     document.getElementById("deadline-id").value = "";
     document.getElementById("deadline-priority").value = "Normaal";
     document.getElementById("deadline-date").value = todayString();
@@ -808,6 +848,19 @@ async function apiFetch(url, options = {}, requiresAuth = true) {
 function setFeedback(element, message, isError = false) {
     element.textContent = message;
     element.classList.toggle("is-error", isError);
+}
+
+function markInvalidFields(fields) {
+    for (const [id, isInvalid] of fields) {
+        const element = document.getElementById(id);
+        element?.closest(".form-field")?.classList.toggle("is-invalid", Boolean(isInvalid));
+    }
+}
+
+function clearInvalidFields(form) {
+    for (const field of form.querySelectorAll(".form-field.is-invalid")) {
+        field.classList.remove("is-invalid");
+    }
 }
 
 function formatDate(value) {

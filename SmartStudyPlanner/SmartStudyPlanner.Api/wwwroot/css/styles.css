@@ -163,6 +163,23 @@ button {
     font-weight: 700;
 }
 
+.required-marker {
+    color: #8a1f1f;
+    font-weight: 800;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 .form-field input,
 .form-field textarea,
 .form-field select {
@@ -172,6 +189,18 @@ button {
     border-radius: 16px;
     background: #fffdfa;
     color: var(--text);
+}
+
+.form-field.is-invalid label {
+    color: #6f1717;
+}
+
+.form-field.is-invalid input,
+.form-field.is-invalid textarea,
+.form-field.is-invalid select {
+    border-color: #8a1f1f;
+    background: #fff5f2;
+    box-shadow: 0 0 0 3px rgba(138, 31, 31, 0.18);
 }
 
 .checkbox-field {
