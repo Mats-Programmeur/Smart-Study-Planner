@@ -126,6 +126,17 @@ button {
     margin-top: 1.25rem;
 }
 
+.auth-choice {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1.25rem;
+}
+
+.form-title {
+    margin: 0 0 1rem;
+    font-size: 1.15rem;
+}
+
 .form-field {
     margin-bottom: 1rem;
 }
@@ -339,6 +350,7 @@ button {
 
 @media (min-width: 680px) {
     .credential-grid,
+    .auth-choice,
     .form-row,
     .button-row,
     .action-row,

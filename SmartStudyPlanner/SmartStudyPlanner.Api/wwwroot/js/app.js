@@ -1,12 +1,19 @@
 const state = {
     token: localStorage.getItem("ssp_token"),
     user: null,
+    authMode: null,
     tasks: [],
     deadlines: [],
     users: []
 };
 
+const authChoice = document.getElementById("auth-choice");
 const authForm = document.getElementById("auth-form");
+const authFormTitle = document.getElementById("auth-form-title");
+const authNameField = document.getElementById("auth-name-field");
+const authPasswordInput = document.getElementById("auth-password");
+const authSubmitButton = document.getElementById("auth-submit-button");
+const authSwitchButton = document.getElementById("auth-switch-button");
 const taskForm = document.getElementById("task-form");
 const deadlineForm = document.getElementById("deadline-form");
 const logoutButton = document.getElementById("logout-button");
@@ -38,7 +45,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function bindEvents() {
+    authChoice.addEventListener("click", handleAuthChoiceClick);
     authForm.addEventListener("submit", handleAuthSubmit);
+    authSwitchButton.addEventListener("click", handleAuthSwitchClick);
     taskForm.addEventListener("submit", handleTaskSubmit);
     deadlineForm.addEventListener("submit", handleDeadlineSubmit);
     logoutButton.addEventListener("click", logout);
@@ -47,6 +56,20 @@ function bindEvents() {
     taskList.addEventListener("click", handleTaskListClick);
     deadlineList.addEventListener("click", handleDeadlineListClick);
     userList.addEventListener("click", handleUserListClick);
+}
+
+function handleAuthChoiceClick(event) {
+    const button = event.target.closest("button[data-auth-mode]");
+
+    if (!button) {
+        return;
+    }
+
+    setAuthMode(button.dataset.authMode);
+}
+
+function handleAuthSwitchClick() {
+    setAuthMode(state.authMode === "register" ? "login" : "register");
 }
 
 async function restoreSession() {
@@ -64,7 +87,7 @@ async function restoreSession() {
 async function handleAuthSubmit(event) {
     event.preventDefault();
 
-    const action = event.submitter?.dataset.action;
+    const action = state.authMode ?? "login";
     const formData = new FormData(authForm);
     const payload = {
         naam: formData.get("naam")?.toString().trim() ?? "",
@@ -116,6 +139,7 @@ async function handleAuthSubmit(event) {
 function logout() {
     state.token = null;
     state.user = null;
+    state.authMode = null;
     state.tasks = [];
     state.deadlines = [];
     state.users = [];
@@ -555,7 +579,8 @@ function updateDashboardVisibility() {
     const isStudent = state.user?.rol === "Student";
     const isAdmin = state.user?.rol === "Beheerder";
 
-    authForm.classList.toggle("is-hidden", isLoggedIn);
+    authChoice.classList.toggle("is-hidden", isLoggedIn || Boolean(state.authMode));
+    authForm.classList.toggle("is-hidden", isLoggedIn || !state.authMode);
     sessionCard.classList.toggle("is-hidden", !isLoggedIn);
     studentDashboard.classList.toggle("is-hidden", !isStudent);
     adminDashboard.classList.toggle("is-hidden", !isAdmin);
@@ -567,6 +592,20 @@ function updateDashboardVisibility() {
         sessionName.textContent = "-";
         sessionMeta.textContent = "";
     }
+}
+
+function setAuthMode(mode) {
+    state.authMode = mode;
+
+    const isRegister = mode === "register";
+    authFormTitle.textContent = isRegister ? "Account aanmaken" : "Inloggen";
+    authNameField.classList.toggle("is-hidden", !isRegister);
+    authPasswordInput.autocomplete = isRegister ? "new-password" : "current-password";
+    authSubmitButton.textContent = isRegister ? "Account maken" : "Inloggen";
+    authSwitchButton.textContent = isRegister ? "Ik wil toch inloggen" : "Ik wil toch een account aanmaken";
+    setFeedback(authFeedback, "");
+    updateDashboardVisibility();
+    document.getElementById(isRegister ? "auth-name" : "auth-email").focus();
 }
 
 function resetTaskForm() {
