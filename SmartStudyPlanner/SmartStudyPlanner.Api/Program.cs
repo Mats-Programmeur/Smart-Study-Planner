@@ -21,18 +21,12 @@ var databaseProvider = builder.Configuration["DatabaseProvider"] ?? "SqlServer";
 
 builder.Services.AddDbContext<StudyPlannerDbContext>(options =>
 {
-    if (string.Equals(databaseProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
-    {
-        options.UseInMemoryDatabase("SmartStudyPlannerDev");
-        return;
-    }
-
     if (string.Equals(databaseProvider, "Sqlite", StringComparison.OrdinalIgnoreCase))
     {
         var sqliteConnectionString = builder.Configuration.GetConnectionString("SqliteDb")
             ?? throw new InvalidOperationException("Connection string 'SqliteDb' is not configured.");
 
-        options.UseSqlite(sqliteConnectionString);
+        options.UseSqlite(ResolveSqliteConnectionString(sqliteConnectionString, builder.Environment));
         return;
     }
 
@@ -101,3 +95,38 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static string ResolveSqliteConnectionString(string connectionString, IWebHostEnvironment environment)
+{
+    var marker = "Data Source=";
+
+    if (!connectionString.StartsWith(marker, StringComparison.OrdinalIgnoreCase))
+    {
+        return connectionString;
+    }
+
+    var configuredPath = connectionString[marker.Length..].Trim();
+
+    if (Path.IsPathRooted(configuredPath))
+    {
+        var absoluteDirectory = Path.GetDirectoryName(configuredPath);
+
+        if (!string.IsNullOrWhiteSpace(absoluteDirectory))
+        {
+            Directory.CreateDirectory(absoluteDirectory);
+        }
+
+        return connectionString;
+    }
+
+    var baseDirectory = environment.IsDevelopment()
+        ? Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "SmartStudyPlanner")
+        : AppContext.BaseDirectory;
+
+    Directory.CreateDirectory(baseDirectory);
+
+    var absolutePath = Path.Combine(baseDirectory, configuredPath);
+    return $"{marker}{absolutePath}";
+}
