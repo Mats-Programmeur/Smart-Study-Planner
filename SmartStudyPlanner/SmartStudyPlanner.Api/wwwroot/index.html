@@ -9,12 +9,42 @@
 <body>
     <main class="page-shell">
         <section class="hero">
-            <p class="eyebrow">Smart Study Planner</p>
-            <h1>Plan veilig, houd overzicht en laat rollen precies doen wat ze mogen.</h1>
-            <p class="hero-copy">
-                Deze showcaseversie ondersteunt studenten en beheerders met JWT-authenticatie,
-                rolgebaseerde autorisatie, eigenaarschap op data en eenvoudige studieadviezen.
-            </p>
+            <div class="hero-topbar">
+                <div class="hero-copy-group">
+                    <p class="eyebrow">Smart Study Planner</p>
+                    <h1>Plan veilig, houd overzicht en laat rollen precies doen wat ze mogen.</h1>
+                    <p class="hero-copy">
+                        Deze showcaseversie ondersteunt studenten en beheerders met JWT-authenticatie,
+                        rolgebaseerde autorisatie, eigenaarschap op data en eenvoudige studieadviezen.
+                    </p>
+                </div>
+
+                <div id="profile-menu" class="profile-menu is-hidden">
+                    <button
+                        id="profile-button"
+                        type="button"
+                        class="profile-button"
+                        aria-expanded="false"
+                        aria-controls="profile-dropdown"
+                        aria-label="Open profielmenu">
+                        <svg class="profile-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 12c2.76 0 5-2.69 5-6s-2.24-6-5-6-5 2.69-5 6 2.24 6 5 6Zm0 2c-4.42 0-8 2.91-8 6.5 0 .83.67 1.5 1.5 1.5h13c.83 0 1.5-.67 1.5-1.5 0-3.59-3.58-6.5-8-6.5Z" />
+                        </svg>
+                    </button>
+
+                    <section id="profile-dropdown" class="profile-dropdown is-hidden" aria-live="polite">
+                        <div class="profile-dropdown-content">
+                            <p id="profile-status-label" class="session-label">Ingelogd als</p>
+                            <h3 id="session-name">-</h3>
+                            <p id="session-meta" class="muted-text"></p>
+                        </div>
+                        <div class="session-actions">
+                            <button id="profile-login-button" type="button" class="primary-button is-hidden">Naar inloggen</button>
+                            <button id="logout-button" type="button" class="secondary-button">Uitloggen</button>
+                        </div>
+                    </section>
+                </div>
+            </div>
         </section>
 
         <section class="panel credentials-panel" aria-labelledby="demo-accounts-title">
@@ -36,8 +66,8 @@
             </div>
         </section>
 
-        <section class="dashboard-grid">
-            <article class="panel">
+        <section id="dashboard-grid" class="dashboard-grid">
+            <article id="account-panel" class="panel">
                 <header class="panel-header">
                     <h2>Account</h2>
                     <p>Log in of maak een studentaccount aan om jouw planning te beheren.</p>
@@ -75,16 +105,6 @@
                     <p id="auth-feedback" class="form-feedback" role="status" aria-live="polite"></p>
                 </form>
 
-                <section id="session-card" class="session-card is-hidden" aria-live="polite">
-                    <div class="session-content">
-                        <p class="session-label">Ingelogd als</p>
-                        <h3 id="session-name">-</h3>
-                        <p id="session-meta" class="muted-text"></p>
-                    </div>
-                    <div class="session-actions">
-                        <button id="logout-button" type="button" class="secondary-button">Uitloggen</button>
-                    </div>
-                </section>
             </article>
 
             <div id="student-dashboard" class="dashboard-stack is-hidden">

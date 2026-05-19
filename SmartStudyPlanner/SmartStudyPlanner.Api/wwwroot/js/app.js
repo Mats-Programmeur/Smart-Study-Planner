@@ -31,9 +31,15 @@ const authFeedback = document.getElementById("auth-feedback");
 const taskFeedback = document.getElementById("task-feedback");
 const deadlineFeedback = document.getElementById("deadline-feedback");
 const adminFeedback = document.getElementById("admin-feedback");
+const dashboardGrid = document.getElementById("dashboard-grid");
+const accountPanel = document.getElementById("account-panel");
+const profileMenu = document.getElementById("profile-menu");
+const profileButton = document.getElementById("profile-button");
+const profileDropdown = document.getElementById("profile-dropdown");
+const profileStatusLabel = document.getElementById("profile-status-label");
+const profileLoginButton = document.getElementById("profile-login-button");
 const studentDashboard = document.getElementById("student-dashboard");
 const adminDashboard = document.getElementById("admin-dashboard");
-const sessionCard = document.getElementById("session-card");
 const sessionName = document.getElementById("session-name");
 const sessionMeta = document.getElementById("session-meta");
 const taskList = document.getElementById("task-list");
@@ -67,12 +73,16 @@ function bindEvents() {
     deadlineForm.addEventListener("submit", handleDeadlineSubmit);
     deadlineForm.addEventListener("input", handleFormInput);
     deadlineForm.addEventListener("change", handleFormInput);
+    profileButton.addEventListener("click", toggleProfileDropdown);
+    profileLoginButton.addEventListener("click", handleProfileLoginClick);
     logoutButton.addEventListener("click", logout);
     taskCancelButton.addEventListener("click", cancelTaskForm);
     deadlineCancelButton.addEventListener("click", cancelDeadlineForm);
     taskList.addEventListener("click", handleTaskListClick);
     deadlineList.addEventListener("click", handleDeadlineListClick);
     userList.addEventListener("click", handleUserListClick);
+    document.addEventListener("click", handleDocumentClick);
+    document.addEventListener("keydown", handleDocumentKeydown);
 }
 
 function handleAuthChoiceClick(event) {
@@ -206,6 +216,7 @@ function logout() {
     state.users = [];
 
     localStorage.removeItem("ssp_token");
+    closeProfileDropdown();
 
     authForm.reset();
     resetTaskForm();
@@ -221,6 +232,12 @@ function logout() {
     setFeedback(deadlineFeedback, "");
     setFeedback(adminFeedback, "");
     updateDashboardVisibility();
+}
+
+function handleProfileLoginClick() {
+    closeProfileDropdown();
+    setAuthMode("login");
+    accountPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 async function loadDashboards() {
@@ -660,20 +677,55 @@ function updateDashboardVisibility() {
     const isStudent = state.user?.rol === "Student";
     const isAdmin = state.user?.rol === "Beheerder";
 
+    accountPanel.classList.toggle("is-hidden", isLoggedIn);
+    profileMenu.classList.remove("is-hidden");
+    dashboardGrid.classList.toggle("dashboard-grid--authenticated", isLoggedIn);
     authChoice.classList.toggle("is-hidden", isLoggedIn || Boolean(state.authMode));
     authForm.classList.toggle("is-hidden", isLoggedIn || !state.authMode);
-    sessionCard.classList.toggle("is-hidden", !isLoggedIn);
     studentDashboard.classList.toggle("is-hidden", !isStudent);
     adminDashboard.classList.toggle("is-hidden", !isAdmin);
     updateTaskPanelVisibility(isStudent);
     updateDeadlinePanelVisibility(isStudent);
 
     if (isLoggedIn) {
+        profileStatusLabel.textContent = "Ingelogd als";
         sessionName.textContent = state.user.naam;
         sessionMeta.textContent = `${state.user.email} | ${state.user.rol}`;
+        profileLoginButton.classList.add("is-hidden");
+        logoutButton.classList.remove("is-hidden");
     } else {
-        sessionName.textContent = "-";
-        sessionMeta.textContent = "";
+        profileStatusLabel.textContent = "Profiel";
+        sessionName.textContent = "Nog niet ingelogd";
+        sessionMeta.textContent = "Log eerst in om jouw planning, taken en deadlines te beheren.";
+        profileLoginButton.classList.remove("is-hidden");
+        logoutButton.classList.add("is-hidden");
+    }
+}
+
+function toggleProfileDropdown() {
+    const shouldOpen = profileDropdown.classList.contains("is-hidden");
+    profileDropdown.classList.toggle("is-hidden", !shouldOpen);
+    profileButton.setAttribute("aria-expanded", String(shouldOpen));
+}
+
+function closeProfileDropdown() {
+    profileDropdown.classList.add("is-hidden");
+    profileButton.setAttribute("aria-expanded", "false");
+}
+
+function handleDocumentClick(event) {
+    if (profileMenu.classList.contains("is-hidden")) {
+        return;
+    }
+
+    if (!profileMenu.contains(event.target)) {
+        closeProfileDropdown();
+    }
+}
+
+function handleDocumentKeydown(event) {
+    if (event.key === "Escape") {
+        closeProfileDropdown();
     }
 }
 
