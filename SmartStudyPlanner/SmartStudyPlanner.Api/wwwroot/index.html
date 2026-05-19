@@ -9,18 +9,48 @@
 <body>
     <main class="page-shell">
         <section class="hero">
-            <p class="eyebrow">Smart Study Planner</p>
-            <h1>Plan veilig, houd overzicht en laat rollen precies doen wat ze mogen.</h1>
-            <p class="hero-copy">
-                Deze showcaseversie ondersteunt studenten en beheerders met JWT-authenticatie,
-                rolgebaseerde autorisatie, eigenaarschap op data en eenvoudige studieadviezen.
-            </p>
+            <div class="hero-topbar">
+                <div class="hero-copy-group">
+                    <p class="eyebrow">Smart Study Planner</p>
+                    <h1>Plan veilig, houd overzicht en laat rollen precies doen wat ze mogen.</h1>
+                    <p class="hero-copy">
+                        Deze showcaseversie ondersteunt studenten en beheerders met JWT-authenticatie,
+                        rolgebaseerde autorisatie, eigenaarschap op data en eenvoudige studieadviezen.
+                    </p>
+                </div>
+
+                <div id="profile-menu" class="profile-menu is-hidden">
+                    <button
+                        id="profile-button"
+                        type="button"
+                        class="profile-button"
+                        aria-expanded="false"
+                        aria-controls="profile-dropdown"
+                        aria-label="Open profielmenu">
+                        <svg class="profile-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 12c2.76 0 5-2.69 5-6s-2.24-6-5-6-5 2.69-5 6 2.24 6 5 6Zm0 2c-4.42 0-8 2.91-8 6.5 0 .83.67 1.5 1.5 1.5h13c.83 0 1.5-.67 1.5-1.5 0-3.59-3.58-6.5-8-6.5Z" />
+                        </svg>
+                    </button>
+
+                    <section id="profile-dropdown" class="profile-dropdown is-hidden" aria-live="polite">
+                        <div class="profile-dropdown-content">
+                            <p id="profile-status-label" class="session-label">Ingelogd als</p>
+                            <h3 id="session-name">-</h3>
+                            <p id="session-meta" class="muted-text"></p>
+                        </div>
+                        <div class="session-actions">
+                            <button id="profile-login-button" type="button" class="primary-button is-hidden">Naar inloggen</button>
+                            <button id="logout-button" type="button" class="secondary-button">Uitloggen</button>
+                        </div>
+                    </section>
+                </div>
+            </div>
         </section>
 
         <section class="panel credentials-panel" aria-labelledby="demo-accounts-title">
             <div>
                 <h2 id="demo-accounts-title">Demo-accounts</h2>
-                <p>Gebruik deze accounts om authenticatie en autorisatie direct te demonstreren.</p>
+                <p>Gebruik deze accounts om alles te testen.</p>
             </div>
             <div class="credential-grid">
                 <article class="credential-card">
@@ -36,48 +66,45 @@
             </div>
         </section>
 
-        <section class="dashboard-grid">
-            <article class="panel">
+        <section id="dashboard-grid" class="dashboard-grid">
+            <article id="account-panel" class="panel">
                 <header class="panel-header">
                     <h2>Account</h2>
                     <p>Log in of maak een studentaccount aan om jouw planning te beheren.</p>
                 </header>
 
-                <form id="auth-form" class="stacked-form" novalidate>
-                    <div class="form-field">
-                        <label for="auth-name">Naam</label>
+                <div id="auth-choice" class="auth-choice" aria-label="Kies hoe je verder wilt gaan">
+                    <button type="button" class="primary-button" data-auth-mode="login">Ik wil inloggen</button>
+                    <button type="button" class="secondary-button" data-auth-mode="register">Account aanmaken</button>
+                </div>
+
+                <form id="auth-form" class="stacked-form is-hidden" novalidate>
+                    <h3 id="auth-form-title" class="form-title">Inloggen</h3>
+
+                    <div id="auth-name-field" class="form-field">
+                        <label for="auth-name">Naam <span class="required-marker" aria-hidden="true">*</span><span class="sr-only">verplicht</span></label>
                         <input id="auth-name" name="naam" type="text" maxlength="80" autocomplete="name">
                         <small>Alleen nodig bij een nieuw account.</small>
                     </div>
 
                     <div class="form-field">
-                        <label for="auth-email">E-mailadres</label>
+                        <label for="auth-email">E-mailadres <span class="required-marker" aria-hidden="true">*</span><span class="sr-only">verplicht</span></label>
                         <input id="auth-email" name="email" type="email" maxlength="200" required autocomplete="username">
                     </div>
 
                     <div class="form-field">
-                        <label for="auth-password">Wachtwoord</label>
+                        <label for="auth-password">Wachtwoord <span class="required-marker" aria-hidden="true">*</span><span class="sr-only">verplicht</span></label>
                         <input id="auth-password" name="wachtwoord" type="password" minlength="8" required autocomplete="current-password">
                         <small>Minimaal 8 tekens.</small>
                     </div>
 
                     <div class="button-row">
-                        <button type="submit" class="primary-button" data-action="login">Inloggen</button>
-                        <button type="submit" class="secondary-button" data-action="register">Account maken</button>
+                        <button id="auth-submit-button" type="submit" class="primary-button">Inloggen</button>
+                        <button id="auth-switch-button" type="button" class="secondary-button">Ik wil toch een account aanmaken</button>
                     </div>
                     <p id="auth-feedback" class="form-feedback" role="status" aria-live="polite"></p>
                 </form>
 
-                <section id="session-card" class="session-card is-hidden" aria-live="polite">
-                    <div class="session-content">
-                        <p class="session-label">Ingelogd als</p>
-                        <h3 id="session-name">-</h3>
-                        <p id="session-meta" class="muted-text"></p>
-                    </div>
-                    <div class="session-actions">
-                        <button id="logout-button" type="button" class="secondary-button">Uitloggen</button>
-                    </div>
-                </section>
             </article>
 
             <div id="student-dashboard" class="dashboard-stack is-hidden">
@@ -87,11 +114,20 @@
                         <p>Voeg taken toe, werk ze bij en verwijder ze alleen binnen je eigen account.</p>
                     </header>
 
-                    <form id="task-form" class="stacked-form" novalidate>
+                    <div id="task-choice" class="panel-choice" aria-label="Kies wat je met taken wilt doen">
+                        <button type="button" class="primary-button" data-task-panel-mode="add">Taak toevoegen</button>
+                        <button type="button" class="secondary-button" data-task-panel-mode="list">Alle taken bekijken</button>
+                    </div>
+
+                    <div id="task-mode-actions" class="panel-mode-actions is-hidden">
+                        <button id="task-switch-button" type="button" class="secondary-button">Alle taken bekijken</button>
+                    </div>
+
+                    <form id="task-form" class="stacked-form is-hidden" novalidate>
                         <input id="task-id" name="id" type="hidden">
 
                         <div class="form-field">
-                            <label for="task-title">Titel</label>
+                            <label for="task-title">Titel <span class="required-marker" aria-hidden="true">*</span><span class="sr-only">verplicht</span></label>
                             <input id="task-title" name="titel" type="text" maxlength="120" required>
                         </div>
 
@@ -102,7 +138,7 @@
 
                         <div class="form-row">
                             <div class="form-field">
-                                <label for="task-date">Datum</label>
+                                <label for="task-date">Datum <span class="required-marker" aria-hidden="true">*</span><span class="sr-only">verplicht</span></label>
                                 <input id="task-date" name="datum" type="date" required>
                             </div>
 
@@ -118,19 +154,19 @@
 
                         <div class="form-row">
                             <div class="form-field">
-                                <label for="task-start-time">Starttijd</label>
+                                <label for="task-start-time">Starttijd <span class="required-marker" aria-hidden="true">*</span><span class="sr-only">verplicht</span></label>
                                 <input id="task-start-time" name="startTijd" type="time" required>
                             </div>
 
                             <div class="form-field">
-                                <label for="task-end-time">Eindtijd</label>
+                                <label for="task-end-time">Eindtijd <span class="required-marker" aria-hidden="true">*</span><span class="sr-only">verplicht</span></label>
                                 <input id="task-end-time" name="eindTijd" type="time" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-field">
-                                <label for="task-estimate">Geschatte studietijd (minuten)</label>
+                                <label for="task-estimate">Geschatte studietijd (minuten) <span class="required-marker" aria-hidden="true">*</span><span class="sr-only">verplicht</span></label>
                                 <input id="task-estimate" name="geschatteStudietijdMinuten" type="number" min="15" max="480" step="15" value="60" required>
                             </div>
 
@@ -151,7 +187,7 @@
                         <p id="task-feedback" class="form-feedback" role="status" aria-live="polite"></p>
                     </form>
 
-                    <div id="task-list" class="item-list" aria-live="polite"></div>
+                    <div id="task-list" class="item-list is-hidden" aria-live="polite"></div>
                 </article>
 
                 <article class="panel">
@@ -160,11 +196,20 @@
                         <p>Bewaar deadlines apart zodat de planner realistische adviezen kan tonen.</p>
                     </header>
 
-                    <form id="deadline-form" class="stacked-form" novalidate>
+                    <div id="deadline-choice" class="panel-choice" aria-label="Kies wat je met deadlines wilt doen">
+                        <button type="button" class="primary-button" data-deadline-panel-mode="add">Deadline toevoegen</button>
+                        <button type="button" class="secondary-button" data-deadline-panel-mode="list">Alle deadlines bekijken</button>
+                    </div>
+
+                    <div id="deadline-mode-actions" class="panel-mode-actions is-hidden">
+                        <button id="deadline-switch-button" type="button" class="secondary-button">Alle deadlines bekijken</button>
+                    </div>
+
+                    <form id="deadline-form" class="stacked-form is-hidden" novalidate>
                         <input id="deadline-id" name="id" type="hidden">
 
                         <div class="form-field">
-                            <label for="deadline-title">Titel</label>
+                            <label for="deadline-title">Titel <span class="required-marker" aria-hidden="true">*</span><span class="sr-only">verplicht</span></label>
                             <input id="deadline-title" name="titel" type="text" maxlength="120" required>
                         </div>
 
@@ -175,12 +220,12 @@
 
                         <div class="form-row">
                             <div class="form-field">
-                                <label for="deadline-date">Datum</label>
+                                <label for="deadline-date">Datum <span class="required-marker" aria-hidden="true">*</span><span class="sr-only">verplicht</span></label>
                                 <input id="deadline-date" name="datum" type="date" required>
                             </div>
 
                             <div class="form-field">
-                                <label for="deadline-time">Eindtijd</label>
+                                <label for="deadline-time">Eindtijd <span class="required-marker" aria-hidden="true">*</span><span class="sr-only">verplicht</span></label>
                                 <input id="deadline-time" name="eindTijd" type="time" required>
                             </div>
                         </div>
@@ -201,7 +246,7 @@
                         <p id="deadline-feedback" class="form-feedback" role="status" aria-live="polite"></p>
                     </form>
 
-                    <div id="deadline-list" class="item-list" aria-live="polite"></div>
+                    <div id="deadline-list" class="item-list is-hidden" aria-live="polite"></div>
                 </article>
 
                 <article class="panel">

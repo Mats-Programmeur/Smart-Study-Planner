@@ -1,13 +1,28 @@
 const state = {
     token: localStorage.getItem("ssp_token"),
     user: null,
+    authMode: null,
+    taskPanelMode: null,
+    deadlinePanelMode: null,
     tasks: [],
     deadlines: [],
     users: []
 };
 
+const authChoice = document.getElementById("auth-choice");
 const authForm = document.getElementById("auth-form");
+const authFormTitle = document.getElementById("auth-form-title");
+const authNameField = document.getElementById("auth-name-field");
+const authPasswordInput = document.getElementById("auth-password");
+const authSubmitButton = document.getElementById("auth-submit-button");
+const authSwitchButton = document.getElementById("auth-switch-button");
+const taskChoice = document.getElementById("task-choice");
+const taskModeActions = document.getElementById("task-mode-actions");
+const taskSwitchButton = document.getElementById("task-switch-button");
 const taskForm = document.getElementById("task-form");
+const deadlineChoice = document.getElementById("deadline-choice");
+const deadlineModeActions = document.getElementById("deadline-mode-actions");
+const deadlineSwitchButton = document.getElementById("deadline-switch-button");
 const deadlineForm = document.getElementById("deadline-form");
 const logoutButton = document.getElementById("logout-button");
 const taskCancelButton = document.getElementById("task-cancel");
@@ -16,9 +31,15 @@ const authFeedback = document.getElementById("auth-feedback");
 const taskFeedback = document.getElementById("task-feedback");
 const deadlineFeedback = document.getElementById("deadline-feedback");
 const adminFeedback = document.getElementById("admin-feedback");
+const dashboardGrid = document.getElementById("dashboard-grid");
+const accountPanel = document.getElementById("account-panel");
+const profileMenu = document.getElementById("profile-menu");
+const profileButton = document.getElementById("profile-button");
+const profileDropdown = document.getElementById("profile-dropdown");
+const profileStatusLabel = document.getElementById("profile-status-label");
+const profileLoginButton = document.getElementById("profile-login-button");
 const studentDashboard = document.getElementById("student-dashboard");
 const adminDashboard = document.getElementById("admin-dashboard");
-const sessionCard = document.getElementById("session-card");
 const sessionName = document.getElementById("session-name");
 const sessionMeta = document.getElementById("session-meta");
 const taskList = document.getElementById("task-list");
@@ -38,15 +59,80 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function bindEvents() {
+    authChoice.addEventListener("click", handleAuthChoiceClick);
     authForm.addEventListener("submit", handleAuthSubmit);
+    authForm.addEventListener("input", handleFormInput);
+    authSwitchButton.addEventListener("click", handleAuthSwitchClick);
+    taskChoice.addEventListener("click", handleTaskChoiceClick);
+    taskSwitchButton.addEventListener("click", handleTaskSwitchClick);
     taskForm.addEventListener("submit", handleTaskSubmit);
+    taskForm.addEventListener("input", handleFormInput);
+    taskForm.addEventListener("change", handleFormInput);
+    deadlineChoice.addEventListener("click", handleDeadlineChoiceClick);
+    deadlineSwitchButton.addEventListener("click", handleDeadlineSwitchClick);
     deadlineForm.addEventListener("submit", handleDeadlineSubmit);
+    deadlineForm.addEventListener("input", handleFormInput);
+    deadlineForm.addEventListener("change", handleFormInput);
+    profileButton.addEventListener("click", toggleProfileDropdown);
+    profileLoginButton.addEventListener("click", handleProfileLoginClick);
     logoutButton.addEventListener("click", logout);
-    taskCancelButton.addEventListener("click", resetTaskForm);
-    deadlineCancelButton.addEventListener("click", resetDeadlineForm);
+    taskCancelButton.addEventListener("click", cancelTaskForm);
+    deadlineCancelButton.addEventListener("click", cancelDeadlineForm);
     taskList.addEventListener("click", handleTaskListClick);
     deadlineList.addEventListener("click", handleDeadlineListClick);
     userList.addEventListener("click", handleUserListClick);
+    document.addEventListener("click", handleDocumentClick);
+    document.addEventListener("keydown", handleDocumentKeydown);
+}
+
+function handleAuthChoiceClick(event) {
+    const button = event.target.closest("button[data-auth-mode]");
+
+    if (!button) {
+        return;
+    }
+
+    setAuthMode(button.dataset.authMode);
+}
+
+function handleAuthSwitchClick() {
+    setAuthMode(state.authMode === "register" ? "login" : "register");
+}
+
+function handleTaskChoiceClick(event) {
+    const button = event.target.closest("button[data-task-panel-mode]");
+
+    if (!button) {
+        return;
+    }
+
+    setTaskPanelMode(button.dataset.taskPanelMode);
+}
+
+function handleTaskSwitchClick() {
+    setTaskPanelMode(state.taskPanelMode === "add" ? "list" : "add");
+}
+
+function handleDeadlineChoiceClick(event) {
+    const button = event.target.closest("button[data-deadline-panel-mode]");
+
+    if (!button) {
+        return;
+    }
+
+    setDeadlinePanelMode(button.dataset.deadlinePanelMode);
+}
+
+function handleDeadlineSwitchClick() {
+    setDeadlinePanelMode(state.deadlinePanelMode === "add" ? "list" : "add");
+}
+
+function handleFormInput(event) {
+    const field = event.target.closest(".form-field");
+
+    if (field) {
+        field.classList.remove("is-invalid");
+    }
 }
 
 async function restoreSession() {
@@ -63,8 +149,9 @@ async function restoreSession() {
 
 async function handleAuthSubmit(event) {
     event.preventDefault();
+    clearInvalidFields(authForm);
 
-    const action = event.submitter?.dataset.action;
+    const action = state.authMode ?? "login";
     const formData = new FormData(authForm);
     const payload = {
         naam: formData.get("naam")?.toString().trim() ?? "",
@@ -73,11 +160,16 @@ async function handleAuthSubmit(event) {
     };
 
     if (!payload.email || !payload.wachtwoord) {
+        markInvalidFields([
+            ["auth-email", !payload.email],
+            ["auth-password", !payload.wachtwoord]
+        ]);
         setFeedback(authFeedback, "Vul e-mailadres en wachtwoord in.", true);
         return;
     }
 
     if (action === "register" && !payload.naam) {
+        markInvalidFields([["auth-name", true]]);
         setFeedback(authFeedback, "Vul ook een naam in voor een nieuw account.", true);
         return;
     }
@@ -116,11 +208,15 @@ async function handleAuthSubmit(event) {
 function logout() {
     state.token = null;
     state.user = null;
+    state.authMode = null;
+    state.taskPanelMode = null;
+    state.deadlinePanelMode = null;
     state.tasks = [];
     state.deadlines = [];
     state.users = [];
 
     localStorage.removeItem("ssp_token");
+    closeProfileDropdown();
 
     authForm.reset();
     resetTaskForm();
@@ -136,6 +232,12 @@ function logout() {
     setFeedback(deadlineFeedback, "");
     setFeedback(adminFeedback, "");
     updateDashboardVisibility();
+}
+
+function handleProfileLoginClick() {
+    closeProfileDropdown();
+    setAuthMode("login");
+    accountPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 async function loadDashboards() {
@@ -184,6 +286,7 @@ async function loadUsers() {
 
 async function handleTaskSubmit(event) {
     event.preventDefault();
+    clearInvalidFields(taskForm);
 
     const formData = new FormData(taskForm);
     const taskId = document.getElementById("task-id").value;
@@ -199,11 +302,22 @@ async function handleTaskSubmit(event) {
     };
 
     if (!payload.titel || !payload.datum || !payload.startTijd || !payload.eindTijd) {
+        markInvalidFields([
+            ["task-title", !payload.titel],
+            ["task-date", !payload.datum],
+            ["task-start-time", !payload.startTijd],
+            ["task-end-time", !payload.eindTijd],
+            ["task-estimate", !payload.geschatteStudietijdMinuten]
+        ]);
         setFeedback(taskFeedback, "Vul alle verplichte taakvelden in.", true);
         return;
     }
 
     if (payload.eindTijd <= payload.startTijd) {
+        markInvalidFields([
+            ["task-start-time", true],
+            ["task-end-time", true]
+        ]);
         setFeedback(taskFeedback, "Eindtijd moet later zijn dan starttijd.", true);
         return;
     }
@@ -231,6 +345,7 @@ async function handleTaskSubmit(event) {
 
 async function handleDeadlineSubmit(event) {
     event.preventDefault();
+    clearInvalidFields(deadlineForm);
 
     const formData = new FormData(deadlineForm);
     const deadlineId = document.getElementById("deadline-id").value;
@@ -243,6 +358,11 @@ async function handleDeadlineSubmit(event) {
     };
 
     if (!payload.titel || !payload.datum || !payload.eindTijd) {
+        markInvalidFields([
+            ["deadline-title", !payload.titel],
+            ["deadline-date", !payload.datum],
+            ["deadline-time", !payload.eindTijd]
+        ]);
         setFeedback(deadlineFeedback, "Vul alle verplichte deadlinevelden in.", true);
         return;
     }
@@ -283,6 +403,7 @@ async function handleTaskListClick(event) {
     }
 
     if (button.dataset.taskAction === "edit") {
+        setTaskPanelMode("add", { clearFeedback: false, focus: false });
         document.getElementById("task-id").value = task.id;
         document.getElementById("task-title").value = task.titel;
         document.getElementById("task-description").value = task.beschrijving ?? "";
@@ -324,6 +445,7 @@ async function handleDeadlineListClick(event) {
     }
 
     if (button.dataset.deadlineAction === "edit") {
+        setDeadlinePanelMode("add", { clearFeedback: false, focus: false });
         document.getElementById("deadline-id").value = deadline.id;
         document.getElementById("deadline-title").value = deadline.titel;
         document.getElementById("deadline-description").value = deadline.beschrijving ?? "";
@@ -555,22 +677,140 @@ function updateDashboardVisibility() {
     const isStudent = state.user?.rol === "Student";
     const isAdmin = state.user?.rol === "Beheerder";
 
-    authForm.classList.toggle("is-hidden", isLoggedIn);
-    sessionCard.classList.toggle("is-hidden", !isLoggedIn);
+    accountPanel.classList.toggle("is-hidden", isLoggedIn);
+    profileMenu.classList.remove("is-hidden");
+    dashboardGrid.classList.toggle("dashboard-grid--authenticated", isLoggedIn);
+    authChoice.classList.toggle("is-hidden", isLoggedIn || Boolean(state.authMode));
+    authForm.classList.toggle("is-hidden", isLoggedIn || !state.authMode);
     studentDashboard.classList.toggle("is-hidden", !isStudent);
     adminDashboard.classList.toggle("is-hidden", !isAdmin);
+    updateTaskPanelVisibility(isStudent);
+    updateDeadlinePanelVisibility(isStudent);
 
     if (isLoggedIn) {
+        profileStatusLabel.textContent = "Ingelogd als";
         sessionName.textContent = state.user.naam;
         sessionMeta.textContent = `${state.user.email} | ${state.user.rol}`;
+        profileLoginButton.classList.add("is-hidden");
+        logoutButton.classList.remove("is-hidden");
     } else {
-        sessionName.textContent = "-";
-        sessionMeta.textContent = "";
+        profileStatusLabel.textContent = "Profiel";
+        sessionName.textContent = "Nog niet ingelogd";
+        sessionMeta.textContent = "Log eerst in om jouw planning, taken en deadlines te beheren.";
+        profileLoginButton.classList.remove("is-hidden");
+        logoutButton.classList.add("is-hidden");
     }
+}
+
+function toggleProfileDropdown() {
+    const shouldOpen = profileDropdown.classList.contains("is-hidden");
+    profileDropdown.classList.toggle("is-hidden", !shouldOpen);
+    profileButton.setAttribute("aria-expanded", String(shouldOpen));
+}
+
+function closeProfileDropdown() {
+    profileDropdown.classList.add("is-hidden");
+    profileButton.setAttribute("aria-expanded", "false");
+}
+
+function handleDocumentClick(event) {
+    if (profileMenu.classList.contains("is-hidden")) {
+        return;
+    }
+
+    if (!profileMenu.contains(event.target)) {
+        closeProfileDropdown();
+    }
+}
+
+function handleDocumentKeydown(event) {
+    if (event.key === "Escape") {
+        closeProfileDropdown();
+    }
+}
+
+function setAuthMode(mode) {
+    state.authMode = mode;
+    clearInvalidFields(authForm);
+
+    const isRegister = mode === "register";
+    authFormTitle.textContent = isRegister ? "Account aanmaken" : "Inloggen";
+    authNameField.classList.toggle("is-hidden", !isRegister);
+    authPasswordInput.autocomplete = isRegister ? "new-password" : "current-password";
+    authSubmitButton.textContent = isRegister ? "Account maken" : "Inloggen";
+    authSwitchButton.textContent = isRegister ? "Ik wil toch inloggen" : "Ik wil toch een account aanmaken";
+    setFeedback(authFeedback, "");
+    updateDashboardVisibility();
+    document.getElementById(isRegister ? "auth-name" : "auth-email").focus();
+}
+
+function setTaskPanelMode(mode, options = {}) {
+    state.taskPanelMode = mode;
+
+    if (options.clearFeedback !== false) {
+        setFeedback(taskFeedback, "");
+    }
+
+    updateDashboardVisibility();
+
+    if (options.focus !== false && mode === "add") {
+        document.getElementById("task-title").focus();
+    }
+}
+
+function setDeadlinePanelMode(mode, options = {}) {
+    state.deadlinePanelMode = mode;
+
+    if (options.clearFeedback !== false) {
+        setFeedback(deadlineFeedback, "");
+    }
+
+    updateDashboardVisibility();
+
+    if (options.focus !== false && mode === "add") {
+        document.getElementById("deadline-title").focus();
+    }
+}
+
+function updateTaskPanelVisibility(isStudent) {
+    const hasMode = Boolean(state.taskPanelMode);
+    const showForm = isStudent && state.taskPanelMode === "add";
+    const showList = isStudent && state.taskPanelMode === "list";
+
+    taskChoice.classList.toggle("is-hidden", !isStudent || hasMode);
+    taskModeActions.classList.toggle("is-hidden", !isStudent || !hasMode);
+    taskForm.classList.toggle("is-hidden", !showForm);
+    taskList.classList.toggle("is-hidden", !showList);
+    taskSwitchButton.textContent = state.taskPanelMode === "add" ? "Alle taken bekijken" : "Taak toevoegen";
+}
+
+function updateDeadlinePanelVisibility(isStudent) {
+    const hasMode = Boolean(state.deadlinePanelMode);
+    const showForm = isStudent && state.deadlinePanelMode === "add";
+    const showList = isStudent && state.deadlinePanelMode === "list";
+
+    deadlineChoice.classList.toggle("is-hidden", !isStudent || hasMode);
+    deadlineModeActions.classList.toggle("is-hidden", !isStudent || !hasMode);
+    deadlineForm.classList.toggle("is-hidden", !showForm);
+    deadlineList.classList.toggle("is-hidden", !showList);
+    deadlineSwitchButton.textContent = state.deadlinePanelMode === "add" ? "Alle deadlines bekijken" : "Deadline toevoegen";
+}
+
+function cancelTaskForm() {
+    resetTaskForm();
+    state.taskPanelMode = null;
+    updateDashboardVisibility();
+}
+
+function cancelDeadlineForm() {
+    resetDeadlineForm();
+    state.deadlinePanelMode = null;
+    updateDashboardVisibility();
 }
 
 function resetTaskForm() {
     taskForm.reset();
+    clearInvalidFields(taskForm);
     document.getElementById("task-id").value = "";
     document.getElementById("task-estimate").value = 60;
     document.getElementById("task-priority").value = "Normaal";
@@ -581,6 +821,7 @@ function resetTaskForm() {
 
 function resetDeadlineForm() {
     deadlineForm.reset();
+    clearInvalidFields(deadlineForm);
     document.getElementById("deadline-id").value = "";
     document.getElementById("deadline-priority").value = "Normaal";
     document.getElementById("deadline-date").value = todayString();
@@ -659,6 +900,19 @@ async function apiFetch(url, options = {}, requiresAuth = true) {
 function setFeedback(element, message, isError = false) {
     element.textContent = message;
     element.classList.toggle("is-error", isError);
+}
+
+function markInvalidFields(fields) {
+    for (const [id, isInvalid] of fields) {
+        const element = document.getElementById(id);
+        element?.closest(".form-field")?.classList.toggle("is-invalid", Boolean(isInvalid));
+    }
+}
+
+function clearInvalidFields(form) {
+    for (const field of form.querySelectorAll(".form-field.is-invalid")) {
+        field.classList.remove("is-invalid");
+    }
 }
 
 function formatDate(value) {
