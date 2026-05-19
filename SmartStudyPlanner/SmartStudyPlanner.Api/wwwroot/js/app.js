@@ -297,7 +297,6 @@ async function handleTaskSubmit(event) {
         startTijd: formData.get("startTijd")?.toString() ?? "",
         eindTijd: formData.get("eindTijd")?.toString() ?? "",
         prioriteit: formData.get("prioriteit")?.toString() ?? "Normaal",
-        geschatteStudietijdMinuten: Number(formData.get("geschatteStudietijdMinuten") ?? 60),
         status: formData.get("status")?.toString() ?? "Gepland"
     };
 
@@ -306,8 +305,7 @@ async function handleTaskSubmit(event) {
             ["task-title", !payload.titel],
             ["task-date", !payload.datum],
             ["task-start-time", !payload.startTijd],
-            ["task-end-time", !payload.eindTijd],
-            ["task-estimate", !payload.geschatteStudietijdMinuten]
+            ["task-end-time", !payload.eindTijd]
         ]);
         setFeedback(taskFeedback, "Vul alle verplichte taakvelden in.", true);
         return;
@@ -411,7 +409,6 @@ async function handleTaskListClick(event) {
         document.getElementById("task-start-time").value = task.startTijd.slice(0, 5);
         document.getElementById("task-end-time").value = task.eindTijd.slice(0, 5);
         document.getElementById("task-priority").value = task.prioriteit;
-        document.getElementById("task-estimate").value = task.geschatteStudietijdMinuten;
         document.getElementById("task-status").value = task.status;
         setFeedback(taskFeedback, "Taak geladen om te bewerken.");
         document.getElementById("task-title").focus();
@@ -812,7 +809,6 @@ function resetTaskForm() {
     taskForm.reset();
     clearInvalidFields(taskForm);
     document.getElementById("task-id").value = "";
-    document.getElementById("task-estimate").value = 60;
     document.getElementById("task-priority").value = "Normaal";
     document.getElementById("task-status").value = "Gepland";
     document.getElementById("task-date").value = todayString();
