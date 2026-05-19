@@ -128,6 +128,12 @@ namespace SmartStudyPlanner.Api.Controllers
                 return "Eindtijd moet later zijn dan starttijd.";
             }
 
+            var studieduurMinuten = CalculateStudyTimeMinutes(request.StartTijd, request.EindTijd);
+            if (studieduurMinuten is < 15 or > 480)
+            {
+                return "De berekende studieduur moet tussen 15 en 480 minuten liggen.";
+            }
+
             if (!TaskPriority.All.Contains(request.Prioriteit))
             {
                 return "Prioriteit moet Laag, Normaal of Hoog zijn.";
