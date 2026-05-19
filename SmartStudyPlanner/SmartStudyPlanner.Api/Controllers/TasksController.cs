@@ -46,7 +46,7 @@ namespace SmartStudyPlanner.Api.Controllers
                 StartTijd = request.StartTijd,
                 EindTijd = request.EindTijd,
                 Prioriteit = request.Prioriteit,
-                GeschatteStudietijdMinuten = request.GeschatteStudietijdMinuten,
+                GeschatteStudietijdMinuten = CalculateStudyTimeMinutes(request.StartTijd, request.EindTijd),
                 Status = request.Status,
                 UserId = User.GetUserId()
             };
@@ -79,7 +79,7 @@ namespace SmartStudyPlanner.Api.Controllers
             task.StartTijd = request.StartTijd;
             task.EindTijd = request.EindTijd;
             task.Prioriteit = request.Prioriteit;
-            task.GeschatteStudietijdMinuten = request.GeschatteStudietijdMinuten;
+            task.GeschatteStudietijdMinuten = CalculateStudyTimeMinutes(request.StartTijd, request.EindTijd);
             task.Status = request.Status;
 
             return Ok(await _taskService.UpdateAsync(task));
@@ -138,12 +138,12 @@ namespace SmartStudyPlanner.Api.Controllers
                 return "Status moet Gepland, Bezig of Afgerond zijn.";
             }
 
-            if (request.GeschatteStudietijdMinuten is < 15 or > 480)
-            {
-                return "Geschatte studietijd moet tussen 15 en 480 minuten liggen.";
-            }
-
             return null;
+        }
+
+        private static int CalculateStudyTimeMinutes(TimeOnly startTijd, TimeOnly eindTijd)
+        {
+            return (int)(eindTijd.ToTimeSpan() - startTijd.ToTimeSpan()).TotalMinutes;
         }
     }
 }

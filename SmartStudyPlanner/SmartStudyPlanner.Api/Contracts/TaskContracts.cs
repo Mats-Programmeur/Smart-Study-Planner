@@ -7,6 +7,5 @@ namespace SmartStudyPlanner.Api.Contracts
         TimeOnly StartTijd,
         TimeOnly EindTijd,
         string Prioriteit,
-        int GeschatteStudietijdMinuten,
         string Status);
 }
